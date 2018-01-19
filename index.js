@@ -61,11 +61,21 @@ availablePlays = function(board, player) {
 http.createServer((request, response) => {
 
     let query  = url.parse(request.url).query;
-    let board  = querystring.parse(query).board.split('');
+    let board  = querystring.parse(query).board;
     let player = querystring.parse(query).player;
 
-    response.writeHead(200, {'Content-Type': 'application/json'})
-    response.write(JSON.stringify({board: board, player: player, plays: availablePlays(board, player)}));
-    response.end();
+    // Handle wrong requests
+    if (!board || !player) {
+      response.writeHead(400, {'Content-Type': 'application/json'});
+      response.write(JSON.stringify({error: 'Missing fields, you must provide a board and player params'}));
+      response.end()
+    }
+    // Handle correct requests
+    else {
+      board = board.split('');
+      response.writeHead(200, {'Content-Type': 'application/json'})
+      response.write(JSON.stringify({board: board, player: player, plays: availablePlays(board, player)}));
+      response.end();
+    }
 
 }).listen(3030);
